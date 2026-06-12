@@ -128,24 +128,28 @@ function TaskCard({
         >
           {task.title}
         </p>
-        {task.status !== "done" ? (
+        {task.status === "pending" && (
+          <button
+            title="Iniciar"
+            onClick={(e) => { e.stopPropagation(); onStatus("in_progress"); }}
+            className="rounded-md border border-zinc-700 px-1.5 text-sm text-zinc-400 transition hover:bg-amber-900/40 hover:text-amber-400"
+          >
+            ✓
+          </button>
+        )}
+        {task.status === "in_progress" && (
           <button
             title="Marcar como hecha"
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatus("done");
-            }}
+            onClick={(e) => { e.stopPropagation(); onStatus("done"); }}
             className="rounded-md border border-zinc-700 px-1.5 text-sm text-zinc-400 transition hover:bg-green-900/40 hover:text-green-400"
           >
             ✓
           </button>
-        ) : (
+        )}
+        {task.status === "done" && (
           <button
             title="Reabrir"
-            onClick={(e) => {
-              e.stopPropagation();
-              onStatus("pending");
-            }}
+            onClick={(e) => { e.stopPropagation(); onStatus("pending"); }}
             className="rounded-md border border-zinc-700 px-1.5 text-sm text-zinc-500 transition hover:bg-zinc-800"
           >
             ↺
