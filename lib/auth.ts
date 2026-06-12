@@ -6,11 +6,11 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 // contexto de Cloudflare (getCloudflareContext).
 export async function getAuth() {
   const { env } = await getCloudflareContext({ async: true });
-  // Strip UTF-8 BOM (U+FEFF) that PowerShell may inject into wrangler secrets
-  // Strip UTF-8 BOM (U+FEFF) that PowerShell injects into wrangler secrets.
-  // Must mutate process.env so Better Auth reads the clean value internally.
-  if (process.env.BETTER_AUTH_URL?.charCodeAt(0) === 0xFEFF) {
-    process.env.BETTER_AUTH_URL = process.env.BETTER_AUTH_URL.slice(1);
+  // Strip UTF-8 BOM (U+FEFF) from all secrets set via PowerShell piping
+  for (const key of ["BETTER_AUTH_URL", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "BETTER_AUTH_SECRET"]) {
+    if (process.env[key]?.charCodeAt(0) === 0xFEFF) {
+      process.env[key] = process.env[key]!.slice(1);
+    }
   }
   return betterAuth({
     database: {
