@@ -1,5 +1,7 @@
 # Plan: YouTube Channel Monitor + Content Calendar
 
+> **Actualización (junio 2026)**: `@cloudflare/next-on-pages` quedó deprecado. La implementación usa **`@opennextjs/cloudflare` (OpenNext) + Cloudflare Workers** en lugar de Pages. El deploy es `npm run deploy` (no requiere conectar GitHub a Pages). La configuración vive en `wrangler.jsonc`. Ver CLAUDE.md para los comandos reales.
+
 ---
 
 ## Vision general
@@ -183,11 +185,11 @@ Sidebar o navbar con las 3 secciones principales.
 
 ## Orden de desarrollo sugerido
 
-1. [ ] Setup proyecto (Next.js + Wrangler + Cloudflare D1 + `@cloudflare/next-on-pages`)
-2. [ ] Login con Google OAuth via Better Auth + guardar token de YouTube
-3. [ ] Endpoint de sincronización de métricas (YouTube API → D1)
-4. [ ] Dashboard con métricas
-5. [ ] CRUD de tareas (lista)
-6. [ ] Vista calendario
-7. [ ] Pulir UI / responsive
-8. [ ] Deploy a Cloudflare Pages
+1. [x] Setup proyecto (Next.js + Wrangler + Cloudflare D1 + `@opennextjs/cloudflare`)
+2. [x] Login con Google OAuth via Better Auth + guardar token de YouTube *(falta crear credenciales en Google Cloud Console)*
+3. [x] Endpoint de sincronización de métricas (YouTube API → D1)
+4. [x] Dashboard con métricas
+5. [x] CRUD de tareas (lista)
+6. [x] Vista calendario
+7. [x] Pulir UI / responsive
+8. [ ] Deploy a Cloudflare Workers (`wrangler login` + `wrangler d1 create` + `npm run deploy`)

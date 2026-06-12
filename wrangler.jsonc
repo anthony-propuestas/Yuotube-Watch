@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "youtube-watch",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-03-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "youtube-watch-db",
+      // Reemplazar con el ID real tras `wrangler d1 create youtube-watch-db`
+      "database_id": "b7520748-9d19-4aae-9397-285b24318de8"
+    }
+  ]
+}

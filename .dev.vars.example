@@ -1,0 +1,6 @@
+# Copiar a .dev.vars y completar (para `npm run preview` con wrangler)
+# Para `npm run dev` (next dev) usar .env.local con las mismas variables
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000

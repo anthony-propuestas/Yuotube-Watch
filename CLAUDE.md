@@ -12,26 +12,30 @@ YouTube Channel Monitor + Content Calendar. Los creadores se loguean con Google,
 | Base de datos | Cloudflare D1 (SQLite) |
 | Auth | Better Auth + Google OAuth 2.0 |
 | API externa | YouTube Data API v3 |
-| Deploy | Cloudflare Pages |
+| Deploy | Cloudflare Workers via `@opennextjs/cloudflare` (OpenNext) |
+
+> `@cloudflare/next-on-pages` está deprecado. Este proyecto usa OpenNext + Workers.
 
 ## Comandos
 
 ```bash
-npm run dev          # desarrollo local
-npm run build        # build
-npx @cloudflare/next-on-pages   # build para Cloudflare Pages
+npm run dev            # desarrollo local (next dev, con bindings D1 locales via initOpenNextCloudflareForDev)
+npm run build          # build de Next.js
+npm run preview        # build OpenNext + preview local en workerd
+npm run deploy         # build OpenNext + deploy a Cloudflare Workers
+npm run cf-typegen     # regenerar cloudflare-env.d.ts tras cambiar wrangler.jsonc
 
 # Migraciones D1
-wrangler d1 execute youtube-watch-db --file=schema.sql          # producción
-wrangler d1 execute youtube-watch-db --local --file=schema.sql  # local
+npm run db:migrate:local   # aplica schema.sql a la D1 local (.wrangler/)
+npm run db:migrate:prod    # aplica schema.sql a la D1 remota
 
 wrangler login       # autenticarse en Cloudflare
-wrangler d1 create youtube-watch-db  # crear base de datos D1
+wrangler d1 create youtube-watch-db  # crear base de datos D1 (copiar database_id a wrangler.jsonc)
 ```
 
 ## Restricciones críticas
 
-**Edge runtime (Cloudflare)**: Las API routes usan Cloudflare Workers, no Node.js estándar. No usar módulos nativos de Node.js (`fs`, `path`, etc.). El adaptador `@cloudflare/next-on-pages` transpila el código.
+**Runtime Workers (Cloudflare)**: El código corre en Cloudflare Workers con el flag `nodejs_compat`. El binding D1 y demás `env` se obtienen con `getCloudflareContext({ async: true })` de `@opennextjs/cloudflare` (ver `lib/db.ts` y `lib/auth.ts`) — nunca importar `fs`/`path` ni asumir Node completo.
 
 **D1 es SQLite**:
 - Usar `TEXT` en lugar de `VARCHAR`
@@ -54,7 +58,7 @@ wrangler d1 create youtube-watch-db  # crear base de datos D1
 
 ## Base de datos
 
-Better Auth crea automáticamente `users`, `sessions` y `accounts`. Solo crear:
+El schema completo está en `schema.sql` (incluye las tablas de Better Auth: `user`, `session`, `account`, `verification` — **singulares**, columnas camelCase). Las tablas del negocio:
 
 ```sql
 -- channels: métricas del canal de YouTube
@@ -88,30 +92,17 @@ CREATE TABLE tasks (
 - **Límite**: 10.000 unidades/día por proyecto de Google Cloud
 - **Costo**: ~3 unidades por sync de métricas básicas (~3.000 syncs/día máximo)
 - **Estrategia**: No sincronizar en cada visita. Solo cuando el usuario lo pide o cada X horas. Usar `last_synced_at` para controlar frecuencia.
-- Los tokens OAuth se guardan en la tabla `accounts` de Better Auth (`access_token`, `refresh_token`). Better Auth refresca automáticamente el token expirado.
+- Los tokens OAuth se guardan en la tabla `account` de Better Auth (`accessToken`, `refreshToken`). `auth.api.getAccessToken()` refresca automáticamente el token expirado (ver `app/api/youtube/sync/route.ts`).
 
 ## Variables de entorno
 
+Locales: `.env.local` (para `next dev`) y `.dev.vars` (para `wrangler`/preview), mismas claves. En producción: `wrangler secret put <NOMBRE>`.
+
 ```env
-# Google OAuth (Google Cloud Console)
-GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_ID=        # Google Cloud Console
 GOOGLE_CLIENT_SECRET=
-
-# Better Auth
-BETTER_AUTH_SECRET=
-
-# Cloudflare (en wrangler.toml o Cloudflare Pages dashboard)
-# DB binding se configura en wrangler.toml, no como env var
+BETTER_AUTH_SECRET=      # cualquier string aleatorio largo
+BETTER_AUTH_URL=         # http://localhost:3000 en dev, URL del Worker en prod
 ```
 
-### wrangler.toml (esquema base)
-
-```toml
-name = "youtube-watch"
-compatibility_date = "2024-01-01"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "youtube-watch-db"
-database_id = "TU_DATABASE_ID"
-```
+El binding D1 se configura en `wrangler.jsonc` (`d1_databases` → binding `DB`), no como env var.
