@@ -16,7 +16,7 @@ Stack: Next.js + TypeScript · Cloudflare D1 · Better Auth (Google OAuth) · Yo
    - Habilitar **YouTube Data API v3**.
    - Crear **OAuth client ID** (tipo "Web application") con redirect URI `http://localhost:3000/api/auth/callback/google`.
 
-3. Copiar `.dev.vars.example` a `.env.local` y a `.dev.vars`, y completar `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `BETTER_AUTH_SECRET` (string aleatorio largo).
+3. Copiar `.dev.vars.example` a `.env.local` y a `.dev.vars`, y completar `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET` (string aleatorio largo) y `BETTER_AUTH_URL` (`http://localhost:3000` en dev).
 
 4. Aplicar el schema a la D1 local y arrancar:
 
@@ -39,5 +39,12 @@ npm run deploy
 ```
 
 Después agregar `https://<worker>.workers.dev/api/auth/callback/google` como redirect URI autorizado en Google Cloud Console.
+
+## Tests
+
+```bash
+npm run test        # modo watch
+npm run test:run    # single-run (CI)
+```
 
 Más detalle en `CLAUDE.md` y `PLAN.md`.

@@ -13,6 +13,7 @@ YouTube Channel Monitor + Content Calendar. Los creadores se loguean con Google,
 | Auth | Better Auth + Google OAuth 2.0 |
 | API externa | YouTube Data API v3 |
 | Deploy | Cloudflare Workers via `@opennextjs/cloudflare` (OpenNext) |
+| Tests | Vitest + @vitejs/plugin-react |
 
 > `@cloudflare/next-on-pages` está deprecado. Este proyecto usa OpenNext + Workers.
 
@@ -24,6 +25,8 @@ npm run build          # build de Next.js
 npm run preview        # build OpenNext + preview local en workerd
 npm run deploy         # build OpenNext + deploy a Cloudflare Workers
 npm run cf-typegen     # regenerar cloudflare-env.d.ts tras cambiar wrangler.jsonc
+npm run test           # tests en modo watch (Vitest)
+npm run test:run       # tests single-run (CI)
 
 # Migraciones D1
 npm run db:migrate:local   # aplica schema.sql a la D1 local (.wrangler/)
@@ -64,7 +67,7 @@ El schema completo está en `schema.sql` (incluye las tablas de Better Auth: `us
 -- channels: métricas del canal de YouTube
 CREATE TABLE channels (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL REFERENCES users(id),
+  user_id TEXT NOT NULL REFERENCES "user"(id),
   channel_id TEXT NOT NULL,
   channel_name TEXT,
   thumbnail_url TEXT,
@@ -77,7 +80,7 @@ CREATE TABLE channels (
 -- tasks: calendario/to-do
 CREATE TABLE tasks (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL REFERENCES users(id),
+  user_id TEXT NOT NULL REFERENCES "user"(id),
   title TEXT NOT NULL,
   description TEXT,
   due_date TEXT,  -- ISO 8601
